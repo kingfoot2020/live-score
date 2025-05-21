@@ -20,7 +20,7 @@ type Match = {
   };
   fixture: {
     date: string;
-    venue: {
+    venue?: {
       name: string;
     };
   };
@@ -31,18 +31,18 @@ type Match = {
 };
 
 type FixtureData = {
-  teams: {
-    home: {
-      id: number;
-      name: string;
-      logo: string;
-      last_5: Match[];
+  teams?: {
+    home?: {
+      id?: number;
+      name?: string;
+      logo?: string;
+      last_5?: Match[];
     };
-    away: {
-      id: number;
-      name: string;
-      logo: string;
-      last_5: Match[];
+    away?: {
+      id?: number;
+      name?: string;
+      logo?: string;
+      last_5?: Match[];
     };
   };
 };
@@ -52,6 +52,15 @@ type TeamLastMatchesProps = {
 };
 
 export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
+  // Add defensive checks to handle potentially missing data
+  if (!fixture || !fixture.teams || !fixture.teams.home || !fixture.teams.away) {
+    return (
+      <div className="text-center py-4">
+        <p className="text-gray-500">Team history is unavailable</p>
+      </div>
+    );
+  }
+
   // Mock data for demonstration - in real implementation, this would come from the API
   // This is a fallback if the API doesn't provide last_5 matches
   const mockLastMatches = [
@@ -109,6 +118,8 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
 
   // Function to determine match result for a team
   const getMatchResult = (match: Match, teamId: number) => {
+    if (!match.teams || !match.goals) return 'N/A';
+    
     // If home team
     if (match.teams.home.id === teamId) {
       if (match.goals.home === null || match.goals.away === null) return 'N/A';
@@ -135,6 +146,20 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
     }
   };
 
+  // Safely format date with error handling
+  const formatMatchDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric' 
+      });
+    } catch (error) {
+      return 'Date unavailable';
+    }
+  };
+
+  const homeTeamId = fixture.teams.home.id || 0;
+  const awayTeamId = fixture.teams.away.id || 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Home Team's Last 5 Matches */}
@@ -142,23 +167,29 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
         <div className="flex items-center mb-3">
           <Image 
             src={fixture.teams.home.logo || '/placeholder-team.png'} 
-            alt={fixture.teams.home.name}
+            alt={fixture.teams.home.name || 'Home Team'}
             width={24}
             height={24}
             className="mr-2"
           />
-          <h3 className="font-bold">{fixture.teams.home.name}</h3>
+          <h3 className="font-bold">{fixture.teams.home.name || 'Home Team'}</h3>
         </div>
         
         <div className="space-y-3">
           {homeLastMatches.slice(0, 5).map((match, index) => {
-            const result = getMatchResult(match, fixture.teams.home.id);
-            const date = new Date(match.fixture.date).toLocaleDateString('en-US', { 
-              month: 'short', day: 'numeric' 
-            });
+            if (!match || !match.teams || !match.fixture) {
+              return (
+                <div key={`home-${index}`} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+                  <div className="text-gray-500 w-full text-center">Match data unavailable</div>
+                </div>
+              );
+            }
+            
+            const result = getMatchResult(match, homeTeamId);
+            const date = formatMatchDate(match.fixture.date);
             
             return (
-              <div key={index} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+              <div key={`home-${index}`} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${getResultBgColor(result)}`}>
                   {result}
                 </div>
@@ -173,9 +204,9 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
                       className="mr-1"
                     />
                     <span className="text-sm font-medium">{match.teams.home.name}</span>
-                    <span className="mx-1 text-sm">{match.goals.home ?? '-'}</span>
+                    <span className="mx-1 text-sm">{match.goals?.home ?? '-'}</span>
                     <span className="mx-1 text-xs text-gray-400">-</span>
-                    <span className="mx-1 text-sm">{match.goals.away ?? '-'}</span>
+                    <span className="mx-1 text-sm">{match.goals?.away ?? '-'}</span>
                     <Image 
                       src={match.teams.away.logo || '/placeholder-team.png'} 
                       alt={match.teams.away.name}
@@ -199,23 +230,29 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
         <div className="flex items-center mb-3">
           <Image 
             src={fixture.teams.away.logo || '/placeholder-team.png'} 
-            alt={fixture.teams.away.name}
+            alt={fixture.teams.away.name || 'Away Team'}
             width={24}
             height={24}
             className="mr-2"
           />
-          <h3 className="font-bold">{fixture.teams.away.name}</h3>
+          <h3 className="font-bold">{fixture.teams.away.name || 'Away Team'}</h3>
         </div>
         
         <div className="space-y-3">
           {awayLastMatches.slice(0, 5).map((match, index) => {
-            const result = getMatchResult(match, fixture.teams.away.id);
-            const date = new Date(match.fixture.date).toLocaleDateString('en-US', { 
-              month: 'short', day: 'numeric' 
-            });
+            if (!match || !match.teams || !match.fixture) {
+              return (
+                <div key={`away-${index}`} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+                  <div className="text-gray-500 w-full text-center">Match data unavailable</div>
+                </div>
+              );
+            }
+            
+            const result = getMatchResult(match, awayTeamId);
+            const date = formatMatchDate(match.fixture.date);
             
             return (
-              <div key={index} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+              <div key={`away-${index}`} className="flex items-center bg-white rounded-lg p-2 shadow-sm border border-gray-100">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${getResultBgColor(result)}`}>
                   {result}
                 </div>
@@ -230,9 +267,9 @@ export default function TeamLastMatches({ fixture }: TeamLastMatchesProps) {
                       className="mr-1"
                     />
                     <span className="text-sm font-medium">{match.teams.home.name}</span>
-                    <span className="mx-1 text-sm">{match.goals.home ?? '-'}</span>
+                    <span className="mx-1 text-sm">{match.goals?.home ?? '-'}</span>
                     <span className="mx-1 text-xs text-gray-400">-</span>
-                    <span className="mx-1 text-sm">{match.goals.away ?? '-'}</span>
+                    <span className="mx-1 text-sm">{match.goals?.away ?? '-'}</span>
                     <Image 
                       src={match.teams.away.logo || '/placeholder-team.png'} 
                       alt={match.teams.away.name}

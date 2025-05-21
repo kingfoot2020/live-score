@@ -22,7 +22,7 @@ type FixtureData = {
   };
   fixture: {
     id: number;
-    venue: {
+    venue?: {
       name: string;
       city: string;
     };
@@ -30,7 +30,7 @@ type FixtureData = {
       short: string; // NS, LIVE, FT, etc.
       elapsed: number | null;
     };
-    date: string;
+    date?: string;
   };
   goals: {
     home: number | null;
@@ -43,43 +43,67 @@ type MatchHeaderProps = {
 };
 
 export default function MatchHeader({ fixture }: MatchHeaderProps) {
-  // Format date to local time
-  const matchDate = new Date(fixture.fixture.date);
-  const formattedDate = matchDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-  const formattedTime = matchDate.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Add defensive checks to handle potentially missing data
+  if (!fixture || !fixture.fixture || !fixture.teams || !fixture.league) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4">
+        <div className="text-center py-8">
+          <p className="text-gray-500">Match information is unavailable</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Format date to local time with fallback
+  let formattedDate = "Date unavailable";
+  let formattedTime = "Time unavailable";
+  
+  if (fixture.fixture.date) {
+    try {
+      const matchDate = new Date(fixture.fixture.date);
+      formattedDate = matchDate.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      formattedTime = matchDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+    }
+  }
 
   // Determine match status display
   const getStatusDisplay = () => {
+    if (!fixture.fixture.status) return 'Status Unavailable';
+    
     const status = fixture.fixture.status.short;
     
     switch (status) {
       case 'NS':
         return 'Not Started';
       case 'LIVE':
-        return `LIVE ${fixture.fixture.status.elapsed}'`;
+        return `LIVE ${fixture.fixture.status.elapsed || 0}'`;
       case 'HT':
         return 'Half Time';
       case 'FT':
         return 'Full Time';
       case '1H':
-        return `1st Half ${fixture.fixture.status.elapsed}'`;
+        return `1st Half ${fixture.fixture.status.elapsed || 0}'`;
       case '2H':
-        return `2nd Half ${fixture.fixture.status.elapsed}'`;
+        return `2nd Half ${fixture.fixture.status.elapsed || 0}'`;
       default:
-        return status;
+        return status || 'Unknown';
     }
   };
 
   // Determine status color
   const getStatusColor = () => {
+    if (!fixture.fixture.status) return 'text-gray-600';
+    
     const status = fixture.fixture.status.short;
     
     if (status === 'LIVE' || status === '1H' || status === '2H') {
@@ -102,7 +126,7 @@ export default function MatchHeader({ fixture }: MatchHeaderProps) {
             height={20}
             className="mr-2"
           />
-          {fixture.league.name} • {fixture.league.country}
+          {fixture.league.name} • {fixture.league.country || 'Unknown'}
         </div>
       </div>
       
@@ -122,7 +146,7 @@ export default function MatchHeader({ fixture }: MatchHeaderProps) {
         </div>
         
         <div className="mx-3 md:mx-6 text-center">
-          {fixture.fixture.status.short === 'NS' ? (
+          {!fixture.fixture.status || fixture.fixture.status.short === 'NS' ? (
             <div className="text-gray-800 text-lg font-medium mb-1">VS</div>
           ) : (
             <div className="flex items-center justify-center space-x-2 mb-1">
@@ -157,9 +181,13 @@ export default function MatchHeader({ fixture }: MatchHeaderProps) {
       </div>
       
       <div className="mt-4 text-sm text-gray-600 text-center">
-        <div>
-          <span className="font-medium">Venue:</span> {fixture.fixture.venue.name}, {fixture.fixture.venue.city}
-        </div>
+        {fixture.fixture.venue ? (
+          <div>
+            <span className="font-medium">Venue:</span> {fixture.fixture.venue.name}, {fixture.fixture.venue.city}
+          </div>
+        ) : (
+          <div>Venue information unavailable</div>
+        )}
       </div>
     </div>
   );

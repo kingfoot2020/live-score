@@ -19,14 +19,14 @@ type FixtureData = {
     name: string;
     logo: string;
     country: string;
-    round: string;
-    season: number;
+    round?: string;
+    season?: number;
   };
   fixture: {
     id: number;
-    referee: string | null;
-    timezone: string;
-    venue: {
+    referee?: string | null;
+    timezone?: string;
+    venue?: {
       name: string;
       city: string;
     };
@@ -34,7 +34,7 @@ type FixtureData = {
       short: string;
       long: string;
     };
-    date: string;
+    date?: string;
   };
 };
 
@@ -43,18 +43,39 @@ type MatchInfoCardProps = {
 };
 
 export default function MatchInfoCard({ fixture }: MatchInfoCardProps) {
-  // Format date to local time
-  const matchDate = new Date(fixture.fixture.date);
-  const formattedDate = matchDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  const formattedTime = matchDate.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Add defensive checks to handle potentially missing data
+  if (!fixture || !fixture.fixture || !fixture.teams || !fixture.league) {
+    return (
+      <div>
+        <h2 className="text-xl font-bold mb-4">Match Information</h2>
+        <div className="text-center py-4">
+          <p className="text-gray-500">Match information is unavailable</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Format date to local time with fallback
+  let formattedDate = "Date unavailable";
+  let formattedTime = "Time unavailable";
+  
+  if (fixture.fixture.date) {
+    try {
+      const matchDate = new Date(fixture.fixture.date);
+      formattedDate = matchDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      formattedTime = matchDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+    }
+  }
 
   return (
     <div>
@@ -78,20 +99,22 @@ export default function MatchInfoCard({ fixture }: MatchInfoCardProps) {
             </div>
             <div>
               <p className="text-sm text-gray-500">Time</p>
-              <p className="font-medium">{formattedTime} ({fixture.fixture.timezone})</p>
+              <p className="font-medium">{formattedTime} {fixture.fixture.timezone ? `(${fixture.fixture.timezone})` : ''}</p>
             </div>
           </div>
           
-          <div className="flex items-center">
-            <div className="w-8">
-              <span className="material-icons-outlined text-primary">stadium</span>
+          {fixture.fixture.venue && (
+            <div className="flex items-center">
+              <div className="w-8">
+                <span className="material-icons-outlined text-primary">stadium</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Venue</p>
+                <p className="font-medium">{fixture.fixture.venue.name}</p>
+                <p className="text-sm text-gray-500">{fixture.fixture.venue.city}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Venue</p>
-              <p className="font-medium">{fixture.fixture.venue.name}</p>
-              <p className="text-sm text-gray-500">{fixture.fixture.venue.city}</p>
-            </div>
-          </div>
+          )}
         </div>
         
         <div className="space-y-3">
@@ -112,7 +135,10 @@ export default function MatchInfoCard({ fixture }: MatchInfoCardProps) {
                 </div>
                 <p className="font-medium">{fixture.league.name}</p>
               </div>
-              <p className="text-sm text-gray-500">{fixture.league.country} • {fixture.league.round}</p>
+              <p className="text-sm text-gray-500">
+                {fixture.league.country}
+                {fixture.league.round ? ` • ${fixture.league.round}` : ''}
+              </p>
             </div>
           </div>
           
@@ -128,15 +154,17 @@ export default function MatchInfoCard({ fixture }: MatchInfoCardProps) {
             </div>
           )}
           
-          <div className="flex items-center">
-            <div className="w-8">
-              <span className="material-icons-outlined text-primary">info</span>
+          {fixture.fixture.status && (
+            <div className="flex items-center">
+              <div className="w-8">
+                <span className="material-icons-outlined text-primary">info</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Status</p>
+                <p className="font-medium">{fixture.fixture.status.long}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Status</p>
-              <p className="font-medium">{fixture.fixture.status.long}</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
       
