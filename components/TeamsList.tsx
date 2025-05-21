@@ -5,6 +5,7 @@ import { FiChevronRight, FiSearch } from 'react-icons/fi'
 import { Team } from '../types'
 import useApiData from '../hooks/useApiData'
 import { getSelectedTeams } from '../services/api'
+import TeamsSkeleton from './skeletons/TeamsSkeleton'
 
 const TeamsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -66,13 +67,8 @@ const TeamsList: React.FC = () => {
         </div>
       )}
       
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-8" suppressHydrationWarning={true}>
-          <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin" suppressHydrationWarning={true}></div>
-          <span className="ml-2 text-gray-500 text-sm">Loading teams...</span>
-        </div>
-      )}
+      {/* Loading state with skeleton */}
+      {isLoading && <TeamsSkeleton />}
       
       {/* Error state */}
       {error && (

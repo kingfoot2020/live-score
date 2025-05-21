@@ -6,6 +6,7 @@ import { Day, Match } from '../types'
 import useApiData from '../hooks/useApiData'
 import { getFixturesByDate } from '../services/api'
 import Link from 'next/link'
+import MatchScheduleSkeleton from './skeletons/MatchScheduleSkeleton'
 
 const MatchSchedule: React.FC = () => {
   const [activeDay, setActiveDay] = useState<number>(5) // Today at index 5
@@ -242,13 +243,8 @@ const MatchSchedule: React.FC = () => {
         </button>
       </div>
       
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-8" suppressHydrationWarning={true}>
-          <div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin" suppressHydrationWarning={true}></div>
-          <span className="ml-2 text-gray-600">Loading matches...</span>
-        </div>
-      )}
+      {/* Loading state with skeleton */}
+      {isLoading && <MatchScheduleSkeleton />}
       
       {/* Error state */}
       {error && (

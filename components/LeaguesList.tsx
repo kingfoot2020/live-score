@@ -5,6 +5,7 @@ import { FiChevronRight, FiSearch, FiFilter } from 'react-icons/fi'
 import { League, Region } from '../types'
 import useApiData from '../hooks/useApiData'
 import { getSelectedLeagues } from '../services/api'
+import LeaguesSkeleton from './skeletons/LeaguesSkeleton'
 
 const LeaguesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -85,29 +86,26 @@ const LeaguesList: React.FC = () => {
       )}
       
       {/* Region filter */}
-      <div className="flex overflow-x-auto scrollbar-hide mb-3 pb-1" suppressHydrationWarning={true}>
-        {regions.map(region => (
-          <button
-            key={region.id}
-            className={`whitespace-nowrap px-3 py-1 text-xs font-medium rounded-full mr-1.5 transition-colors ${
-              activeFilter === region.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-            onClick={() => setActiveFilter(region.id)}
-          >
-            {region.name}
-          </button>
-        ))}
-      </div>
-      
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-8" suppressHydrationWarning={true}>
-          <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin" suppressHydrationWarning={true}></div>
-          <span className="ml-2 text-gray-500 text-sm">Loading leagues...</span>
+      {!isLoading && (
+        <div className="flex overflow-x-auto scrollbar-hide mb-3 pb-1" suppressHydrationWarning={true}>
+          {regions.map(region => (
+            <button
+              key={region.id}
+              className={`whitespace-nowrap px-3 py-1 text-xs font-medium rounded-full mr-1.5 transition-colors ${
+                activeFilter === region.id
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveFilter(region.id)}
+            >
+              {region.name}
+            </button>
+          ))}
         </div>
       )}
+      
+      {/* Loading state with skeleton */}
+      {isLoading && <LeaguesSkeleton />}
       
       {/* Error state */}
       {error && (
