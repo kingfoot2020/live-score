@@ -2,71 +2,71 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { Team } from '../../types'
 
 // Mock data for teams
-const teams: Omit<Team, 'flag'>[] = [
+const teams: Team[] = [
   {
     id: 1,
     name: 'Arsenal',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/arsenal.png'
+    logo: '/teams/arsenal.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 2,
     name: 'Liverpool',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/liverpool.png'
+    logo: '/teams/liverpool.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 3,
     name: 'Liverpool',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/liverpool.png'
+    logo: '/teams/liverpool.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 4,
     name: 'Liverpool',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/liverpool.png'
+    logo: '/teams/liverpool.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 5,
     name: 'Liverpool',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/liverpool.png'
+    logo: '/teams/liverpool.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 6,
     name: 'Manchester City',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/man-city.png'
+    logo: '/teams/man-city.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 7,
     name: 'Manchester City',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/man-city.png'
+    logo: '/teams/man-city.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 8,
     name: 'Manchester City',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/man-city.png'
+    logo: '/teams/man-city.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   },
   {
     id: 9,
     name: 'Manchester City',
     country: 'England',
-    countryCode: 'gb-eng',
-    logo: '/teams/man-city.png'
+    logo: '/teams/man-city.png',
+    flag: 'https://flagcdn.com/w20/gb-eng.png'
   }
-] as Team[]
+]
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Team[]>) {
   // Optional filtering by country

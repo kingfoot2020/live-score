@@ -36,15 +36,18 @@ export interface Match {
     logo: string;
   };
   status: string;
+  elapsed?: string;
+  homeScore?: number;
+  awayScore?: number;
 }
 
 // Day type for calendar
 export interface Day {
   id: number;
-  name: string;
   day: number;
   month: string;
   active?: boolean;
+  fullDate?: string; // Date string in YYYY-MM-DD format for API calls
 }
 
 // Featured match type

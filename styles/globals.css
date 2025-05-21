@@ -110,4 +110,11 @@ body {
   h1, .h1 { @apply text-2xl; }
   h2, .h2 { @apply text-xl; }
   h3, .h3 { @apply text-lg; }
-} 
+}
+
+/* 
+ * Hydration Warnings Note:
+ * We use suppressHydrationWarning on loading spinners and animated elements to prevent hydration errors
+ * caused by browser extensions that add attributes like bis_skin_checked="1" to div elements.
+ * This is a common issue with browser extensions that modify the DOM, particularly ad blockers.
+ */ 

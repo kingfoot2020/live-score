@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react'
 import { 
   FaFutbol, FaBasketballBall, FaTableTennis, 
@@ -34,7 +36,7 @@ const SportCategories: React.FC<SportCategoriesProps> = ({ minimal = false }) =>
   
   if (minimal) {
     return (
-      <div className="flex overflow-x-auto pb-2 scrollbar-hide gap-2">
+      <div className="flex overflow-x-auto pb-2 scrollbar-hide gap-2" suppressHydrationWarning={true}>
         {sports.slice(0, 5).map((sport) => (
           <button 
             key={sport.id}
@@ -54,8 +56,8 @@ const SportCategories: React.FC<SportCategoriesProps> = ({ minimal = false }) =>
   }
   
   return (
-    <div className="bg-white rounded-xl shadow-card overflow-x-auto">
-      <div className="flex px-3 py-4 min-w-max">
+    <div className="bg-white rounded-xl shadow-card overflow-x-auto" suppressHydrationWarning={true}>
+      <div className="flex px-3 py-4 min-w-max" suppressHydrationWarning={true}>
         {sports.map((sport) => (
           <button 
             key={sport.id}

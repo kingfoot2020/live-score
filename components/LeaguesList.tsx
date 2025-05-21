@@ -1,6 +1,10 @@
+"use client"
+
 import React, { useState, useRef } from 'react'
 import { FiChevronRight, FiSearch, FiFilter } from 'react-icons/fi'
 import { League, Region } from '../types'
+import useApiData from '../hooks/useApiData'
+import { getSelectedLeagues } from '../services/api'
 
 const LeaguesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -8,73 +12,11 @@ const LeaguesList: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const inputRef = useRef<HTMLInputElement | null>(null)
   
-  // Sample leagues data
-  const leagues: League[] = [
-    {
-      id: 1,
-      name: 'CAF Champions League',
-      country: 'Africa',
-      logo: '/league-logos/caf.png',
-      flag: 'https://flagcdn.com/w20/africa.png',
-      region: 'Africa'
-    },
-    {
-      id: 2,
-      name: 'Copa de la Superliga',
-      country: 'Argentina',
-      logo: '/league-logos/copa.png',
-      flag: 'https://flagcdn.com/w20/ar.png',
-      region: 'South America'
-    },
-    {
-      id: 3,
-      name: 'Liga Profesional de Fútbol',
-      country: 'Argentina',
-      logo: '/league-logos/liga-argentina.png',
-      flag: 'https://flagcdn.com/w20/ar.png',
-      region: 'South America'
-    },
-    {
-      id: 4,
-      name: 'AFC Champions League Elite',
-      country: 'Asia',
-      logo: '/league-logos/afc.png',
-      flag: 'https://flagcdn.com/w20/asia.png',
-      region: 'Asia'
-    },
-    {
-      id: 5,
-      name: 'Pro League',
-      country: 'Belgium',
-      logo: '/league-logos/belgium.png',
-      flag: 'https://flagcdn.com/w20/be.png',
-      region: 'Europe'
-    },
-    {
-      id: 6,
-      name: 'Serie A',
-      country: 'Brazil',
-      logo: '/league-logos/serie-a-brazil.png',
-      flag: 'https://flagcdn.com/w20/br.png',
-      region: 'South America'
-    },
-    {
-      id: 7,
-      name: 'Premier League',
-      country: 'Egypt',
-      logo: '/league-logos/egypt.png',
-      flag: 'https://flagcdn.com/w20/eg.png',
-      region: 'Africa'
-    },
-    {
-      id: 8,
-      name: 'Carabao Cup',
-      country: 'England',
-      logo: '/league-logos/carabao.png',
-      flag: 'https://flagcdn.com/w20/gb-eng.png',
-      region: 'Europe'
-    }
-  ]
+  // Fetch leagues data from API
+  const { data: leagues, isLoading, error } = useApiData<League[]>(
+    getSelectedLeagues,
+    'selected-leagues'
+  );
   
   const regions: Region[] = [
     { id: 'all', name: 'All' },
@@ -85,7 +27,7 @@ const LeaguesList: React.FC = () => {
   ]
   
   // Filter leagues by search term and region
-  const filteredLeagues: League[] = leagues.filter(league => {
+  const filteredLeagues: League[] = leagues ? leagues.filter(league => {
     const matchesSearch = 
       searchTerm === '' || 
       league.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -96,7 +38,7 @@ const LeaguesList: React.FC = () => {
       league.region.toLowerCase() === activeFilter.toLowerCase()
     
     return matchesSearch && matchesRegion
-  })
+  }) : [];
   
   const toggleSearch = (): void => {
     setShowSearch(!showSearch)
@@ -110,12 +52,12 @@ const LeaguesList: React.FC = () => {
   }
   
   return (
-    <div>
-      <div className="flex justify-between items-center mb-3">
-        <div className="text-sm text-gray-500 font-medium">
+    <div suppressHydrationWarning={true}>
+      <div className="flex justify-between items-center mb-3" suppressHydrationWarning={true}>
+        <div className="text-sm text-gray-500 font-medium" suppressHydrationWarning={true}>
           {filteredLeagues.length} Leagues
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1" suppressHydrationWarning={true}>
           <button 
             onClick={toggleSearch}
             className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
@@ -127,8 +69,8 @@ const LeaguesList: React.FC = () => {
       </div>
       
       {showSearch && (
-        <div className="mb-3 animate-fade-in">
-          <div className="relative">
+        <div className="mb-3 animate-fade-in" suppressHydrationWarning={true}>
+          <div className="relative" suppressHydrationWarning={true}>
             <input
               ref={inputRef}
               type="text"
@@ -143,7 +85,7 @@ const LeaguesList: React.FC = () => {
       )}
       
       {/* Region filter */}
-      <div className="flex overflow-x-auto scrollbar-hide mb-3 pb-1">
+      <div className="flex overflow-x-auto scrollbar-hide mb-3 pb-1" suppressHydrationWarning={true}>
         {regions.map(region => (
           <button
             key={region.id}
@@ -159,43 +101,66 @@ const LeaguesList: React.FC = () => {
         ))}
       </div>
       
-      <div className="divide-y divide-gray-100 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
-        {filteredLeagues.length > 0 ? (
-          filteredLeagues.map((league) => (
-            <div 
-              key={league.id} 
-              className="flex items-center py-2.5 hover:bg-gray-50 transition-colors rounded-lg px-2 cursor-pointer group"
-            >
-              <div className="w-9 h-9 mr-3 bg-gray-50 rounded-full p-1.5 flex items-center justify-center flex-shrink-0">
-                <img 
-                  src={league.logo || 'https://via.placeholder.com/32'} 
-                  alt={league.name} 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-gray-900 text-sm truncate">{league.name}</div>
-                <div className="flex items-center text-xs text-gray-500 mt-0.5">
-                  <img 
-                    src={league.flag} 
-                    alt={league.country} 
-                    className="w-3.5 h-auto mr-1" 
-                  />
-                  <span className="truncate">{league.country}</span>
-                </div>
-              </div>
-              <FiChevronRight className="text-gray-300 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          ))
-        ) : (
-          <div className="py-8 text-center text-gray-500">
-            <p>No leagues found</p>
-            <p className="text-sm mt-1">Try a different search term or filter</p>
-          </div>
-        )}
-      </div>
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-8" suppressHydrationWarning={true}>
+          <div className="w-5 h-5 border-2 border-gray-200 border-t-primary rounded-full animate-spin" suppressHydrationWarning={true}></div>
+          <span className="ml-2 text-gray-500 text-sm">Loading leagues...</span>
+        </div>
+      )}
       
-      <div className="text-center mt-3">
+      {/* Error state */}
+      {error && (
+        <div className="py-4 text-center text-red-500 text-sm" suppressHydrationWarning={true}>
+          Error loading leagues. Please try again later.
+        </div>
+      )}
+      
+      {/* Leagues list */}
+      {!isLoading && !error && (
+        <div className="divide-y divide-gray-100 max-h-[350px] overflow-y-auto custom-scrollbar pr-1" suppressHydrationWarning={true}>
+          {filteredLeagues.length > 0 ? (
+            filteredLeagues.map((league) => (
+              <div 
+                key={league.id} 
+                className="flex items-center py-2.5 hover:bg-gray-50 transition-colors rounded-lg px-2 cursor-pointer group"
+                suppressHydrationWarning={true}
+              >
+                <div className="w-9 h-9 mr-3 bg-gray-50 rounded-full p-1.5 flex items-center justify-center flex-shrink-0" suppressHydrationWarning={true}>
+                  <img 
+                    src={league.logo || 'https://via.placeholder.com/32'} 
+                    alt={league.name} 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0" suppressHydrationWarning={true}>
+                  <div className="font-medium text-gray-900 text-sm truncate" suppressHydrationWarning={true}>{league.name}</div>
+                  <div className="flex items-center text-xs text-gray-500 mt-0.5" suppressHydrationWarning={true}>
+                    <img 
+                      src={league.flag} 
+                      alt={league.country} 
+                      className="w-3.5 h-auto mr-1" 
+                      onError={(e) => {
+                        // Handle image load errors by setting a placeholder
+                        e.currentTarget.src = 'https://via.placeholder.com/24';
+                      }}
+                    />
+                    <span className="truncate">{league.country}</span>
+                  </div>
+                </div>
+                <FiChevronRight className="text-gray-300 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            ))
+          ) : (
+            <div className="py-8 text-center text-gray-500" suppressHydrationWarning={true}>
+              <p>No leagues found</p>
+              <p className="text-sm mt-1">Try a different search term or filter</p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div className="text-center mt-3" suppressHydrationWarning={true}>
         <button className="text-primary text-sm font-medium hover:underline">
           View All Leagues
         </button>
