@@ -2,7 +2,7 @@
 
 A modern, responsive web/mobile application for viewing live sports scores, upcoming matches, and sports news.
 
-## Features
+## Features1
 
 - Display live scores for various sports
 - View upcoming matches and schedules
